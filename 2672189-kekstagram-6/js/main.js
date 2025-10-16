@@ -1,5 +1,3 @@
-import { createPhotos } from './data.js';
+import { createPhotos } from './creating-data.js';
 
 const photos = createPhotos();
-
-console.log(photos);
