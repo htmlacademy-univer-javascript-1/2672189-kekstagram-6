@@ -3,21 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Мой проект с JavaScript</title>
-  <script src="js/functions.js"></script>
-  <script type="module" src="js/main.js"></script>
+  <title>Kekstagram</title>
+  <style>
+    .hidden { display: none; }
+    .big-picture { position: fixed; top:0; left:0; width:100%; height:100%; background:#fff; overflow:auto; z-index:9999; padding:20px; }
+    .modal-open { overflow: hidden; }
+    .big-picture__img img { max-width: 100%; display:block; margin: 0 auto; }
+    .social__comments { list-style: none; padding:0; }
+  </style>
 </head>
 <body>
-  <h1>Hello!</h1>
-  <div class="pictures"></div>
+
+  <section class="pictures" id="pictures-container"></section>
+
   <template id="picture">
-    <a class="picture" href="#">
+    <a href="#" class="picture">
       <img class="picture__img" src="" alt="">
-      <p class="picture__info">
-        <span class="picture__likes"></span>
-        <span class="picture__comments"></span>
-      </p>
     </a>
   </template>
+
+  <div class="big-picture hidden" id="big-picture">
+    <button id="big-picture-close" class="big-picture__cancel">✖</button>
+    <div class="big-picture__img">
+      <img id="big-picture-image" src="" alt="">
+    </div>
+    <p>Лайки: <span class="likes-count">0</span></p>
+    <p>Комментарии: <span class="comments-count">0</span></p>
+    <p class="social__caption"></p>
+    <ul class="social__comments"></ul>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>

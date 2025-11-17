@@ -1,22 +1,73 @@
-function isMeetingWithinWorkday(startWork, endWork, startMeeting, duration) {
-  const toMinutes = (time) => {
-    const [hours, minutes] = time.split(':').map(Number);
-    return hours * 60 + minutes;
-  };
-
-  const startWorkMinutes = toMinutes(startWork);
-  const endWorkMinutes = toMinutes(endWork);
-  const startMeetingMinutes = toMinutes(startMeeting);
-  const endMeetingMinutes = startMeetingMinutes + duration;
-
-  return (
-    startMeetingMinutes >= startWorkMinutes &&
-    endMeetingMinutes <= endWorkMinutes
-  );
+export function getPictures() {
+  return Array.from({ length: 25 }, (_, i) => ({
+    id: i + 1,
+    url: `photos/${i + 1}.jpg`,
+    likes: Math.floor(Math.random() * 200),
+    description: `Описание фото №${i + 1}`,
+    comments: Array.from({ length: Math.floor(Math.random() * 10) + 1 }, () => ({
+      avatar: "img/avatar-1.svg",
+      name: "Пользователь",
+      message: "Какой красивый кадр!"
+    }))
+  }));
 }
 
-console.log(isMeetingWithinWorkday('08:00', '17:30', '14:00', 90));
-console.log(isMeetingWithinWorkday('8:0', '10:0', '8:0', 120));
-console.log(isMeetingWithinWorkday('08:00', '14:30', '14:00', 90));
-console.log(isMeetingWithinWorkday('14:00', '17:30', '08:0', 90));
-console.log(isMeetingWithinWorkday('8:00', '17:30', '08:00', 900));
+export function renderPictures(pictures) {
+  const container = document.getElementById('pictures-container');
+  const template = document.getElementById('picture').content;
+
+  pictures.forEach(photo => {
+    const element = template.cloneNode(true);
+    const link = element.querySelector(".picture");
+    const img = element.querySelector(".picture__img");
+
+    img.src = photo.url;
+    img.alt = photo.description;
+
+    link.addEventListener("click", (evt) => {
+      evt.preventDefault();
+      openBigPicture(photo);
+    });
+
+    container.appendChild(element);
+  });
+}
+
+export function openBigPicture(photo) {
+  const modal = document.getElementById("big-picture");
+  const img = document.getElementById("big-picture-image");
+
+  img.src = photo.url;
+  modal.querySelector(".likes-count").textContent = photo.likes;
+  modal.querySelector(".comments-count").textContent = photo.comments.length;
+  modal.querySelector(".social__caption").textContent = photo.description;
+
+  const commentsContainer = modal.querySelector(".social__comments");
+  commentsContainer.innerHTML = "";
+  photo.comments.forEach(c => {
+    const li = document.createElement("li");
+    li.classList.add("social__comment");
+    li.innerHTML = `<img class="social__picture" src="${c.avatar}" alt="${c.name}" width="35" height="35">
+                    <p class="social__text">${c.message}</p>`;
+    commentsContainer.appendChild(li);
+  });
+
+  modal.querySelector(".social__comment-count")?.classList.add("hidden");
+  modal.querySelector(".comments-loader")?.classList.add("hidden");
+
+  modal.classList.remove("hidden");
+  document.body.classList.add("modal-open");
+
+  document.addEventListener("keydown", onEscClose);
+}
+
+export function closeBigPicture() {
+  const modal = document.getElementById("big-picture");
+  document.body.classList.remove("modal-open");
+  modal.classList.add("hidden");
+  document.removeEventListener("keydown", onEscClose);
+}
+
+function onEscClose(evt) {
+  if (evt.key === "Escape") closeBigPicture();
+}
