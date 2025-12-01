@@ -1,18 +1,29 @@
+import { openBigPicture } from './big-picture.js';
+
 export function renderThumbnails(photos) {
-  const picturesContainer = document.querySelector('.pictures');
+  const container = document.getElementById('pictures-container');
+  const template = document.getElementById('picture').content;
   const fragment = document.createDocumentFragment();
 
   photos.forEach(photo => {
-    const template = document.querySelector('#picture').content.querySelector('.picture');
-    const pictureElement = template.cloneNode(true);
+    const element = template.cloneNode(true);
+    const link = element.querySelector(".picture");
+    const img = element.querySelector(".picture__img");
+    const likes = element.querySelector(".picture__likes");
+    const comments = element.querySelector(".picture__comments");
 
-    pictureElement.querySelector('img').src = photo.url;
-    pictureElement.querySelector('img').alt = photo.description;
-    pictureElement.querySelector('.picture__likes').textContent = photo.likes;
-    pictureElement.querySelector('.picture__comments').textContent = photo.comments.length;
+    img.src = photo.url;
+    img.alt = photo.description;
+    likes.textContent = photo.likes;
+    comments.textContent = photo.comments.length;
 
-    fragment.appendChild(pictureElement);
+    link.addEventListener("click", (evt) => {
+      evt.preventDefault();
+      openBigPicture(photo);
+    });
+
+    fragment.appendChild(element);
   });
 
-  picturesContainer.appendChild(fragment);
+  container.appendChild(fragment);
 }

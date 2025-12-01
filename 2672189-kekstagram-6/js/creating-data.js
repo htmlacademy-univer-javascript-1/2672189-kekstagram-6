@@ -1,25 +1,13 @@
-import { getRandomInteger, getRandomArrayElement } from './utils.js';
-import { PHOTO_COUNT, NAMES, DESCRIPTIONS, MESSAGES } from './const.js';
-
-const createComment = (id) => ({
-  id,
-  avatar: `img/avatar-${getRandomInteger(1, 6)}.svg`,
-  message: getRandomArrayElement(MESSAGES),
-  name: getRandomArrayElement(NAMES),
-});
-
-const createPhotoDescription = (id) => ({
-  id,
-  url: `photos/${id}.jpg`,
-  description: getRandomArrayElement(DESCRIPTIONS),
-  likes: getRandomInteger(15, 200),
-  comments: Array.from({ length: getRandomInteger(1, 5) }, (_, index) =>
-    createComment(index + 1)
-  ),
-});
-
-const createPhotos = () => Array.from({ length: PHOTO_COUNT }, (_, index) =>
-  createPhotoDescription(index + 1)
-);
-
-export { createPhotos };
+export function createPhotos() {
+  return Array.from({ length: 25 }, (_, i) => ({
+    id: i + 1,
+    url: `photos/${i + 1}.jpg`,
+    likes: Math.floor(Math.random() * 200),
+    description: `Описание фото №${i + 1}`,
+    comments: Array.from({ length: Math.floor(Math.random() * 5) + 1 }, () => ({
+      avatar: 'photos/1.jpg',
+      name: 'Пользователь',
+      message: 'Какой красивый кадр!'
+    }))
+  }));
+}

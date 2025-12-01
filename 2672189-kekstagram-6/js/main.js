@@ -1,5 +1,6 @@
-import { createPhotos } from './creating-data.js';
-import { renderThumbnails } from './rendering.js';
+import { getPictures, renderPictures, closeBigPicture } from "./functions.js";
 
-const photos = createPhotos();
-renderThumbnails(photos);
+const pictures = getPictures();
+renderPictures(pictures);
+
+document.getElementById("big-picture-close").addEventListener("click", closeBigPicture);
