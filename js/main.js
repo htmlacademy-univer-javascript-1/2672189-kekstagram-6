@@ -1,5 +1,5 @@
-// main.js
-import { getPictures, renderPictures } from "./functions.js";
+import './form.js';
+import './form-validation.js';
+import './effects.js';
 
-const pictures = getPictures();
-renderPictures(pictures);
+console.log('Основной скрипт загружен');
