@@ -1,131 +1,98 @@
-const form = document.getElementById('upload-form');
-const fileInput = document.getElementById('upload-file');
-const overlay = document.getElementById('upload-overlay');
-const cancelButton = document.getElementById('upload-cancel');
-const hashtagInput = form.querySelector('.text__hashtags-input');
-const descriptionInput = form.querySelector('.text__description-input');
-
-const pristine = new Pristine(form, {
-  classTo: 'text__hashtags',
-  errorClass: 'text__item--invalid',
-  successClass: 'text__item--valid',
-  errorTextParent: 'text__hashtags',
-  errorTextTag: 'span',
-  errorTextClass: 'text__error'
-}, true);
-
-function validateHashtags(value) {
-  if (value === '') {
+const uploadForm = document.querySelector('.img-upload__form');
+const hashtagsInput = document.querySelector('.text__hashtags');
+const descriptionInput = document.querySelector('.text__description');
+const MAX_HASHTAGS = 5;
+const MAX_HASHTAG_LENGTH = 20;
+const MAX_COMMENT_LENGTH = 140;
+const HASHTAG_REGEX = /^#[a-zа-яё0-9]{1,19}$/i;
+const validateHashtags = (value) => {
+  if (value.trim() === '') {
     return true;
   }
-
-  const hashtags = value.toLowerCase().split(' ').filter(tag => tag !== '');
-
-  if (hashtags.length > 5) {
+  const hashtags = value.trim().split(/\s+/).filter(Boolean);
+  if (hashtags.length > MAX_HASHTAGS) {
     return false;
   }
-
   for (let i = 0; i < hashtags.length; i++) {
-    const tag = hashtags[i];
-
-    if (!tag.startsWith('#')) {
+    const hashtag = hashtags[i];
+    if (!HASHTAG_REGEX.test(hashtag)) {
       return false;
     }
-
-    if (tag.length < 2) {
-      return false;
-    }
-
-    if (tag.length > 20) {
-      return false;
-    }
-
-    if (tag.indexOf('#', 1) !== -1) {
-      return false;
-    }
-
-    if (!/^#[a-zа-яё0-9]+$/i.test(tag)) {
-      return false;
-    }
-
     for (let j = i + 1; j < hashtags.length; j++) {
-      if (tag === hashtags[j]) {
+      if (hashtag.toLowerCase() === hashtags[j].toLowerCase()) {
         return false;
       }
     }
   }
-
   return true;
-}
-
-function validateDescription(value) {
-  return value.length <= 140;
-}
-
+};
+const getHashtagErrorMessage = (value) => {
+  if (value.trim() === '') {
+    return '';
+  }
+  const hashtags = value.trim().split(/\s+/).filter(Boolean);
+  if (hashtags.length > MAX_HASHTAGS) {
+    return `Не более ${MAX_HASHTAGS} хэштегов`;
+  }
+  for (let i = 0; i < hashtags.length; i++) {
+    const hashtag = hashtags[i];
+    if (hashtag[0] !== '#') {
+      return 'Хэштег должен начинаться с #';
+    }
+    if (hashtag.length === 1) {
+      return 'Хэштег не может состоять только из #';
+    }
+    if (hashtag.length > MAX_HASHTAG_LENGTH) {
+      return `Хэштег не должен превышать ${MAX_HASHTAG_LENGTH} символов`;
+    }
+    if (hashtag.indexOf(' ') !== -1) {
+      return 'Хэштеги разделяются пробелами, без пробелов внутри';
+    }
+    if (!/^#[a-zа-яё0-9]+$/i.test(hashtag)) {
+      return 'Хэштег содержит недопустимые символы';
+    }
+    for (let j = i + 1; j < hashtags.length; j++) {
+      if (hashtag.toLowerCase() === hashtags[j].toLowerCase()) {
+        return 'Хэштеги не должны повторяться';
+      }
+    }
+  }
+  return '';
+};
+const validateComment = (value) => {
+  return value.length <= MAX_COMMENT_LENGTH;
+};
+const getCommentErrorMessage = () => {
+  return `Комментарий не должен превышать ${MAX_COMMENT_LENGTH} символов`;
+};
+const pristine = new Pristine(uploadForm, {
+  classTo: 'img-upload__field-wrapper',
+  errorTextParent: 'img-upload__field-wrapper',
+  errorTextClass: 'pristine-error',
+  errorTextTag: 'div'
+});
 pristine.addValidator(
-  hashtagInput,
+  hashtagsInput,
   validateHashtags,
-  'Хэш-теги должны начинаться с #, содержать только буквы и цифры, не повторяться (максимум 5 тегов)'
+  getHashtagErrorMessage
 );
-
 pristine.addValidator(
   descriptionInput,
-  validateDescription,
-  'Комментарий не может быть длиннее 140 символов'
+  validateComment,
+  getCommentErrorMessage
 );
-
-function openUploadForm() {
-  overlay.classList.remove('hidden');
-  document.body.classList.add('modal-open');
-  document.addEventListener('keydown', onEscClose);
-}
-
-function closeUploadForm() {
-  overlay.classList.add('hidden');
-  document.body.classList.remove('modal-open');
-  document.removeEventListener('keydown', onEscClose);
-
-  form.reset();
-  fileInput.value = '';
-  pristine.reset();
-}
-
-function onEscClose(evt) {
-  if (evt.key === 'Escape' &&
-      document.activeElement !== hashtagInput &&
-      document.activeElement !== descriptionInput) {
-    evt.preventDefault();
-    closeUploadForm();
-  }
-}
-
-function onFileChange() {
-  const file = fileInput.files[0];
-  if (file) {
-    openUploadForm();
-  }
-}
-
-function onFormSubmit(evt) {
-  evt.preventDefault();
-
+uploadForm.addEventListener('submit', (evt) => {
   const isValid = pristine.validate();
-
-  if (isValid) {
-    form.submit();
+  if (!isValid) {
+    evt.preventDefault();
+    hashtagsInput.dispatchEvent(new Event('input'));
+    descriptionInput.dispatchEvent(new Event('input'));
   }
-}
-
-function stopEscPropagation(evt) {
-  if (evt.key === 'Escape') {
-    evt.stopPropagation();
-  }
-}
-
-fileInput.addEventListener('change', onFileChange);
-cancelButton.addEventListener('click', closeUploadForm);
-form.addEventListener('submit', onFormSubmit);
-hashtagInput.addEventListener('keydown', stopEscPropagation);
-descriptionInput.addEventListener('keydown', stopEscPropagation);
-
-export { openUploadForm, closeUploadForm };
+});
+hashtagsInput.addEventListener('input', () => {
+  pristine.validate(hashtagsInput);
+});
+descriptionInput.addEventListener('input', () => {
+  pristine.validate(descriptionInput);
+});
+export { pristine };
