@@ -1,6 +1,14 @@
-import { getPictures } from './data.js';
 import { renderThumbnails } from './thumbnail.js';
-import './form.js';
+import { getData } from './api.js';
+import { showAlert } from './utils.js';
+import { setFormSubmit, hideModal } from './form.js';
 
-const pictures = getPictures();
-renderThumbnails(pictures);
+getData()
+  .then((pictures) => {
+    renderThumbnails(pictures);
+  })
+  .catch((err) => {
+    showAlert(err.message);
+  });
+
+setFormSubmit(hideModal);
