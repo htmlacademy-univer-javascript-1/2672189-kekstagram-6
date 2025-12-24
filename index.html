@@ -1,237 +1,125 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link rel="stylesheet" href="css/normalize.css">
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="vendor/nouislider/nouislider.css">
-  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-  <title>Кекстаграм</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kekstagram - Загрузка фото</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nouislider@15.7.0/dist/nouislider.min.css">
+<style>
+.hidden { display: none !important; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; border: 0; clip: rect(0 0 0 0); }
+body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+.header { text-align: center; margin-bottom: 30px; }
+.header__title { color: #333; font-size: 32px; }
+.img-upload__label { display: inline-block; padding: 12px 24px; background: #4CAF50; color: white; border-radius: 4px; cursor: pointer; margin-bottom: 20px; font-size: 16px; }
+.img-upload__label:hover { background: #45a049; }
+.img-upload__overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+.img-upload__wrapper { background: white; padding: 30px; border-radius: 10px; width: 90%; max-width: 500px; position: relative; }
+.img-upload__cancel { position: absolute; top: 10px; right: 10px; background: #ff4444; color: white; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 18px; }
+.img-upload__preview { width: 100%; height: 200px; border: 2px dashed #ccc; margin: 20px 0; display: flex; justify-content: center; align-items: center; overflow: hidden; background: #fafafa; }
+.img-upload__preview img { max-width: 100%; max-height: 100%; transition: transform 0.3s, filter 0.3s; }
+.img-upload__scale { display: flex; align-items: center; margin: 15px 0; }
+.img-upload__scale-controls { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+.scale__control { background: none; border: none; font-size: 20px; cursor: pointer; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; }
+.scale__control:hover { background: #f0f0f0; border-radius: 4px; }
+.scale__control--smaller { font-size: 18px; }
+.scale__value { width: 50px; text-align: center; border: 1px solid #ccc; padding: 5px; background: #f5f5f5; border-radius: 4px; }
+.img-upload__effects { margin: 20px 0; }
+.effects__list { display: flex; gap: 10px; flex-wrap: wrap; list-style: none; padding: 0; }
+.effects__item { flex: 1; min-width: 100px; }
+.effects__radio { display: none; }
+.effects__label { display: block; padding: 10px; text-align: center; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; background: #f9f9f9; }
+.effects__radio:checked + .effects__label { background: #4CAF50; color: white; border-color: #4CAF50; }
+.effect-level { margin: 15px 0; }
+.effect-level__value { display: none; }
+.slider { margin: 15px 0; height: 20px; }
+.text__hashtags, .text__description { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; }
+.text__hashtags:focus, .text__description:focus { outline: none; border-color: #4CAF50; box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2); }
+.text__description { min-height: 100px; resize: vertical; }
+.img-upload__submit { width: 100%; padding: 12px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px; font-size: 16px; }
+.img-upload__submit:hover { background: #45a049; }
+.pristine-error { color: #ff4444; font-size: 12px; margin-top: 5px; display: block; }
+.modal-open { overflow: hidden; }
+</style>
 </head>
-
 <body>
-  <main>
 
-    <!-- Фильтрация изображений от других пользователей -->
-    <section class="img-filters  img-filters--inactive  container">
-      <h2 class="img-filters__title  visually-hidden">Фильтр фотографий</h2>
-      <form class="img-filters__form" action="index.html" method="get" autocomplete="off">
-        <button type=button class="img-filters__button  img-filters__button--active" id="filter-default">По умолчанию</button>
-        <button type=button class="img-filters__button" id="filter-random">Случайные</button>
-        <button type=button class="img-filters__button" id="filter-discussed">Обсуждаемые</button>
-      </form>
-    </section>
+<div class="header">
+  <h1 class="header__title">Кекстаграм</h1>
+</div>
 
-    <!-- Контейнер для изображений от других пользователей -->
-    <section class="pictures  container">
-      <h2 class="pictures__title  visually-hidden">Фотографии других пользователей</h2>
+<form class="img-upload__form" method="POST" action="https://30.javascript.pages.academy/kekstagram" enctype="multipart/form-data" id="upload-select-image">
 
-      <!-- Поле для загрузки нового изображения на сайт -->
-      <section class="img-upload">
-        <div class="img-upload__wrapper">
-          <h2 class="img-upload__title  visually-hidden">Загрузка фотографии</h2>
-          <form class="img-upload__form" id="upload-select-image" method="post" enctype="multipart/form-data" action="https://29.javascript.htmlacademy.pro/kekstagram" autocomplete="off">
+  <input class="img-upload__input visually-hidden" type="file" id="upload-file" name="filename" accept="image/*" required>
+  <label class="img-upload__label" for="upload-file">Выбрать фото</label>
 
-            <!-- Изначальное состояние поля для загрузки изображения -->
-            <fieldset class="img-upload__start">
-              <input type="file" id="upload-file" class="img-upload__input  visually-hidden" name="filename" required>
-              <label for="upload-file" class="img-upload__label  img-upload__control">Загрузить</label>
-            </fieldset>
+  <div class="img-upload__overlay hidden">
+    <div class="img-upload__wrapper">
+      <button class="img-upload__cancel" type="button">✖</button>
 
-            <!-- Форма редактирования изображения -->
-            <div class="img-upload__overlay  hidden">
-              <div class="img-upload__wrapper">
-                <div class="img-upload__preview-container">
-
-                  <!-- Изменение размера изображения -->
-                  <fieldset class="img-upload__scale  scale">
-                    <button type="button" class="scale__control  scale__control--smaller">Уменьшить</button>
-                    <input type="text" class="scale__control  scale__control--value" value="100%" title="Image Scale" name="scale" readonly>
-                    <button type="button" class="scale__control  scale__control--bigger">Увеличить</button>
-                  </fieldset>
-
-                  <!-- Предварительный просмотр изображения -->
-                  <div class="img-upload__preview">
-                    <img src="img/upload-default-image.jpg" alt="Предварительный просмотр фотографии">
-                  </div>
-
-                  <!-- Изменение глубины эффекта, накладываемого на изображение -->
-                  <fieldset class="img-upload__effect-level  effect-level">
-                    <input class="effect-level__value" type="number" step="any" name="effect-level" value="">
-                    <div class="effect-level__slider"></div>
-                  </fieldset>
-
-                  <!-- Кнопка для закрытия формы редактирования изображения -->
-                  <button type="reset" class="img-upload__cancel  cancel" id="upload-cancel">Закрыть</button>
-                </div>
-
-                <!-- Наложение эффекта на изображение -->
-                <fieldset class="img-upload__effects  effects">
-                  <ul class="effects__list">
-                    <li class="effects__item">
-                      <input type="radio" class="effects__radio  visually-hidden" name="effect" id="effect-none" value="none" checked>
-                      <label for="effect-none" class="effects__label">
-                        <span class="effects__preview  effects__preview--none">Превью фото без эффекта</span>
-                        Оригинал
-                      </label>
-                    </li>
-                    <li class="effects__item">
-                      <input type="radio" class="effects__radio  visually-hidden" name="effect" id="effect-chrome" value="chrome">
-                      <label for="effect-chrome" class="effects__label">
-                        <span class="effects__preview  effects__preview--chrome">Превью эффекта Хром</span>
-                        Хром
-                      </label>
-                    </li>
-                    <li class="effects__item">
-                      <input type="radio" class="effects__radio  visually-hidden" name="effect" id="effect-sepia" value="sepia">
-                      <label for="effect-sepia" class="effects__label">
-                        <span class="effects__preview  effects__preview--sepia">Превью эффекта Сепия</span>
-                        Сепия
-                      </label>
-                    </li>
-                    <li class="effects__item">
-                      <input type="radio" class="effects__radio  visually-hidden" name="effect" id="effect-marvin" value="marvin">
-                      <label for="effect-marvin" class="effects__label">
-                        <span class="effects__preview  effects__preview--marvin">Превью эффекта Марвин</span>
-                        Марвин
-                      </label>
-                    </li>
-                    <li class="effects__item">
-                      <input type="radio" class="effects__radio  visually-hidden" name="effect" id="effect-phobos" value="phobos">
-                      <label for="effect-phobos" class="effects__label">
-                        <span class="effects__preview  effects__preview--phobos">Превью эффекта Фобос</span>
-                        Фобос
-                      </label>
-                    </li>
-                    <li class="effects__item">
-                      <input type="radio" class="effects__radio  visually-hidden" name="effect" id="effect-heat" value="heat">
-                      <label for="effect-heat" class="effects__label">
-                        <span class="effects__preview  effects__preview--heat">Превью эффекта Зной</span>
-                        Зной
-                      </label>
-                    </li>
-                  </ul>
-                </fieldset>
-
-                <!-- Добавление хэш-тегов и комментария к изображению -->
-                <fieldset class="img-upload__text text">
-                  <div class="img-upload__field-wrapper">
-                    <input class="text__hashtags" name="hashtags" placeholder="#ХэшТег">
-                  </div>
-                  <div class="img-upload__field-wrapper">
-                    <textarea class="text__description" name="description" placeholder="Ваш комментарий..."></textarea>
-                  </div>
-                </fieldset>
-
-                <!-- Кнопка для отправки данных на сервер -->
-                <button type="submit" class="img-upload__submit" id="upload-submit">Опубликовать</button>
-              </div>
-            </div>
-          </form>
-        </div>
-      </section>
-
-      <!-- Здесь будут изображения других пользователей -->
-
-    </section>
-
-    <!-- Полноэкранный показ изображения -->
-    <section class="big-picture  overlay  hidden">
-      <h2 class="big-picture__title  visually-hidden">Просмотр фотографии</h2>
-      <div class="big-picture__preview">
-
-        <!-- Просмотр изображения -->
-        <div class="big-picture__img">
-          <img src="img/logo-background-3.jpg" alt="Девушка в купальнике" width="600" height="600">
-        </div>
-
-        <!-- Информация об изображении. Подпись, комментарии, количество лайков -->
-        <div class="big-picture__social  social">
-          <div class="social__header">
-            <img class="social__picture" src="img/avatar-1.svg" alt="Аватар автора фотографии" width="35" height="35">
-            <p class="social__caption">Тестим новую камеру! =)</p>
-            <p class="social__likes">Нравится <span class="likes-count">356</span></p>
-          </div>
-
-          <!-- Комментарии к изображению -->
-          <div class="social__comment-count">5 из <span class="comments-count">125</span> комментариев</div>
-          <ul class="social__comments">
-            <li class="social__comment">
-              <img class="social__picture" src="img/avatar-4.svg" alt="Аватар комментатора фотографии" width="35" height="35">
-              <p class="social__text">Мега фото! Просто обалдеть. Как вам так удалось?</p>
-            </li>
-            <li class="social__comment">
-              <img class="social__picture" src="img/avatar-3.svg" alt="Аватар комментатора фотографии" width="35" height="35">
-               <p class="social__text">Да это фоташоп!!!!!!!!</p>
-            </li>
-          </ul>
-
-          <!-- Кнопка для загрузки новой порции комментариев -->
-          <button type="button" class="social__comments-loader  comments-loader">Загрузить еще</button>
-
-          <!-- Форма для отправки комментария -->
-          <div class="social__footer">
-            <img class="social__picture" src="img/avatar-6.svg" alt="Аватар комментатора фотографии" width="35" height="35">
-            <input type="text" class="social__footer-text" placeholder="Ваш комментарий...">
-            <button type="button" class="social__footer-btn" name="button">Отправить</button>
-          </div>
-        </div>
-
-        <!-- Кнопка для выхода из полноэкранного просмотра изображения -->
-        <button type="reset" class="big-picture__cancel  cancel" id="picture-cancel">Закрыть</button>
+      <div class="img-upload__preview">
+        <img src="" alt="Предварительный просмотр фотографии">
       </div>
-    </section>
-  </main>
 
-  <footer class="page-footer  container">
-    <div class="page-footer__wrapper">
-      <div class="page-footer__copyright  copyright">
-        <a class="copyright__link  copyright__link--image" href="https://htmlacademy.ru/intensive/javascript"><img src="img/htmla-logo.svg" width="130" height="45" alt="HTML Academy"></a>
-        <p>Сделано в <a class="copyright__link  copyright__link--text" href="https://htmlacademy.ru/intensive/javascript">HTML Academy</a></p>
+      <div class="img-upload__scale">
+        <span>Масштаб:</span>
+        <div class="img-upload__scale-controls">
+          <button class="scale__control scale__control--smaller" type="button">-</button>
+          <input class="scale__value" type="text" name="scale" value="100%" readonly>
+          <button class="scale__control scale__control--bigger" type="button">+</button>
+        </div>
       </div>
-      <ul class="page-footer__contacts  contacts">
-        <li><a href="https://twitter.com/htmlacademy_ru" class="contacts__link  contacts__link--twitter">Twitter</a></li>
-        <li><a href="https://vk.com/htmlacademy" class="contacts__link  contacts__link--vk">VK</a></li>
-      </ul>
+
+      <div class="img-upload__effects">
+        <span>Эффект:</span>
+        <ul class="effects__list">
+          <li class="effects__item">
+            <input class="effects__radio" type="radio" name="effect" id="effect-none" value="none" checked>
+            <label class="effects__label" for="effect-none">Оригинал</label>
+          </li>
+          <li class="effects__item">
+            <input class="effects__radio" type="radio" name="effect" id="effect-chrome" value="chrome">
+            <label class="effects__label" for="effect-chrome">Хром</label>
+          </li>
+          <li class="effects__item">
+            <input class="effects__radio" type="radio" name="effect" id="effect-sepia" value="sepia">
+            <label class="effects__label" for="effect-sepia">Сепия</label>
+          </li>
+          <li class="effects__item">
+            <input class="effects__radio" type="radio" name="effect" id="effect-marvin" value="marvin">
+            <label class="effects__label" for="effect-marvin">Марвин</label>
+          </li>
+          <li class="effects__item">
+            <input class="effects__radio" type="radio" name="effect" id="effect-phobos" value="phobos">
+            <label class="effects__label" for="effect-phobos">Фобос</label>
+          </li>
+          <li class="effects__item">
+            <input class="effects__radio" type="radio" name="effect" id="effect-heat" value="heat">
+            <label class="effects__label" for="effect-heat">Зной</label>
+          </li>
+        </ul>
+      </div>
+
+      <div class="effect-level hidden">
+        <div class="slider"></div>
+        <input class="effect-level__value" type="hidden" name="effect-level" value="100">
+      </div>
+
+      <div>
+        <input class="text__hashtags" type="text" name="hashtags" placeholder="#хэштег1 #хэштег2" maxlength="140">
+      </div>
+
+      <div>
+        <textarea class="text__description" name="description" placeholder="Ваш комментарий..." maxlength="140"></textarea>
+      </div>
+
+      <button class="img-upload__submit" type="submit">Опубликовать</button>
     </div>
-  </footer>
+  </div>
+</form>
 
-  <!-- Шаблон изображения случайного пользователя -->
-  <template id="picture">
-    <a href="#" class="picture">
-      <img class="picture__img" src="" width="182" height="182" alt="Случайная фотография">
-      <p class="picture__info">
-        <span class="picture__comments"></span>
-        <span class="picture__likes"></span>
-      </p>
-    </a>
-  </template>
-
-  <!-- Сообщение с ошибкой загрузки изображения -->
-  <template id="error">
-    <section class="error">
-      <div class="error__inner">
-        <h2 class="error__title">Ошибка загрузки файла</h2>
-        <button type="button" class="error__button">Загрузить другой файл</button>
-      </div>
-    </section>
-  </template>
-
-  <!-- Сообщение об успешной загрузке изображения -->
-  <template id="success">
-    <section class="success">
-      <div class="success__inner">
-        <h2 class="success__title">Изображение успешно загружено</h2>
-        <button type="button" class="success__button">Круто!</button>
-      </div>
-    </section>
-  </template>
-
-  <!-- Экран загрузки изображения -->
-  <template id="messages">
-    <div class="img-upload__message  img-upload__message--loading">Загружаем...</div>
-  </template>
+<script src="https://cdn.jsdelivr.net/npm/nouislider@15.7.0/dist/nouislider.min.js"></script>
+<script type="module" src="js/main.js"></script>
 
   <script src="vendor/pristine/pristine.min.js"></script>
   <script src="vendor/nouislider/nouislider.min.js"></script>
